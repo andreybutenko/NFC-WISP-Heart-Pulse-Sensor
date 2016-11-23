@@ -1,7 +1,7 @@
 # NFC-WISP-Android-App
-# Yuran Wu
+Yuran Wu
 
-#--November 22 2016 Version 1.0
+--November 22 2016 Version 1.0
   Done:
   UI
   Data Visualization
