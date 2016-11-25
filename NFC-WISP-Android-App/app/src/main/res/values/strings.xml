@@ -40,5 +40,6 @@
 
     <string name="startupDefault">tap tag to do measurement</string>
     <string name="back">Back</string>
+    <string name="save">Save</string>
 
 </resources>

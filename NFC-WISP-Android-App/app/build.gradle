@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "com.example.nfc_wisp_android_app.nfc_wisp_android_app"
-        minSdkVersion 10
+        minSdkVersion 11
         targetSdkVersion 17
         versionCode 1
         versionName "1.0"

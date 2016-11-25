@@ -1,16 +1,9 @@
 package com.example.nfc_wisp_android_app.nfc_wisp_android_app;
 
-import android.content.Context;
 import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.database.Cursor;
 import android.nfc.Tag;
-import android.nfc.tech.IsoDep;
-import android.nfc.tech.NfcA;
-import android.nfc.tech.NfcF;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -24,43 +17,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.database.sqlite.SQLiteDatabase;
-import android.widget.EditText;
 import android.widget.TextView;
-
-
-import org.w3c.dom.Text;
-
-import java.io.InputStream;
 import java.text.DateFormat;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
-
-
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Scanner;
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.os.Environment;
-import android.os.Parcelable;
-import android.util.Log;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.github.mikephil.charting.data.Entry;
-
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LoginFragment.LoginFragmentListener {
@@ -70,15 +35,12 @@ public class MainActivity extends AppCompatActivity
     public static final String GENDER = "GENDER";
     public static final String AGE = "AGE";
     public static final String WEIGHT = "WEIGHT";
-    public static final String MEASUREMENT_HISTORY_DATES = "MEASUREMENT_HISTORY_DATES";
-    public static final String MEASUREMENT_HISTORY_MSRS = "MEASUREMENT_HISTORY_MSRS";
-    public static final String DB_NAME = "USER_MEASUREMENT_DB";
-
     private static final String DISPLAY_MESSAGE = "DISPLAY_MESSAGE";
 
     public DBManager dbManager;
 
     private float fakeTimeStamp;
+    public ChartUpdator chartUpdator;
 
     public class Profile {
         String uid;
@@ -118,15 +80,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Floating Button Currently Unused", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -186,7 +139,6 @@ public class MainActivity extends AppCompatActivity
 
         //mNfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
         fakeTimeStamp = 0f;
-        Log.d("Debug", "OnCreate Finished");
     }
 
 
@@ -221,22 +173,21 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if((fragment instanceof DoMeasurementFragment)
                 && (NfcAdapter.getDefaultAdapter(this) == null)) {
-            ((DoMeasurementFragment) fragment).OnTagDetected("NFC is not available", null);
+            ((DoMeasurementFragment) fragment).OnTagDetected("NFC is not available");
         } else if ((fragment instanceof DoMeasurementFragment)
                 && NfcAdapter.ACTION_TAG_DISCOVERED.equals(getIntent().getAction())) {
-            // TODO process data from intent
-            //Parcelable[] msgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_ID);
-            ReadFromHuskyCard huskyCard = new ReadFromHuskyCard();
-            String HuskyID = huskyCard.readTag((Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG));
-            ((DoMeasurementFragment) fragment).OnTagDetected("Tag Detected", HuskyID);
+            ((DoMeasurementFragment) fragment).OnTagDetected("Tag Detected");
             sendTestData((Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG));
-
         }
     }
 
     private void sendTestData(Tag tag) {
-        ChartUpdator chartUpdator = new ChartUpdator(this, tag);
-        chartUpdator.execute(fakeTimeStamp);
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String curTime = sdf.format(c.getTime());
+
+        chartUpdator = new ChartUpdator(this, curTime, tag);
+        chartUpdator.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, fakeTimeStamp);
     }
 
     public void timerCallBack(float time) {

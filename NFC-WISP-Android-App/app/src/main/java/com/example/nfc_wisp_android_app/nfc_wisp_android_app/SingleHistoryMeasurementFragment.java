@@ -111,16 +111,8 @@ public class SingleHistoryMeasurementFragment extends Fragment implements OnClic
 
         float fakeTime = 0f;
 
-        float[] dst = new float[measurement.length / 4];
-        for(int i = 0; i < measurement.length; i += 4) {
-            int d = 0;
-            d |= (measurement[i] & 0xFF);
-            d |= ((measurement[i + 1] & 0xFF) << 8);
-            d |= ((measurement[i + 2] & 0xFF) << 16);
-            d |= ((measurement[i + 3] & 0xFF) << 24);
-            dst[i / 4] = Float.intBitsToFloat(d);
-        }
-
+        //float[] dst = testFixedData(measurement);
+        float[] dst = testNFCTag(measurement);
 
         List<Entry> dataList = new ArrayList<Entry>();
 
@@ -132,6 +124,30 @@ public class SingleHistoryMeasurementFragment extends Fragment implements OnClic
         LineDataSet dataSet = new LineDataSet(dataList, tag);
         dataSetConfig(dataSet, color);
         return dataSet;
+    }
+
+    private float[] testNFCTag(byte[] measurement) {
+        float[] dst = new float[measurement.length];
+        for(int i = 0; i < measurement.length; i++) {
+            int d = 0;
+            d |= (measurement[i] & 0xFF);
+            //d |= ((measurement[i + 1] & 0xFF) << 8);
+            dst[i] = (float) d;
+        }
+        return dst;
+    }
+
+    private float[] testFixedData(byte[] measurement) {
+        float[] dst = new float[measurement.length / 4];
+        for(int i = 0; i < measurement.length; i += 4) {
+            int d = 0;
+            d |= (measurement[i] & 0xFF);
+            d |= ((measurement[i + 1] & 0xFF) << 8);
+            d |= ((measurement[i + 2] & 0xFF) << 16);
+            d |= ((measurement[i + 3] & 0xFF) << 24);
+            dst[i / 4] = Float.intBitsToFloat(d);
+        }
+        return dst;
     }
 
 
