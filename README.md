@@ -1,7 +1,7 @@
 # NFC-WISP-Android-App
 Yuran Wu
 
-** - November 22 2016 Version 1.0 **<br />
+** November 22 2016 Version 1.0 **<br />
   * Done:<br />
     UI<br />
     Data Visualization<br />
@@ -12,7 +12,7 @@ Yuran Wu
     NFC tag communication test with NFC-WISP tag<br />
     NFC protocol design<br />
 
-** - November 24 2016 Version 1.1 ** <br />
+** November 24 2016 Version 1.1 ** <br />
   * Done:<br />
     NFC tag communication test with NFC-WISP tag<br />
   
