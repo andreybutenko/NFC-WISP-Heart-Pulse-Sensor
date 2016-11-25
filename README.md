@@ -11,3 +11,10 @@ November 22 2016 Version 1.0<br />
   TODO:<br />
   NFC tag communication test with NFC-WISP tag<br />
   NFC protocol design<br />
+
+November 24 2016 Version 1.1<br />
+  Done:<br />
+  NFC tag communication test with NFC-WISP tag<br />
+  
+  TODO:
+  NFC protocol design<br />
