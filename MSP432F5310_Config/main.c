@@ -44,7 +44,7 @@ void I2C_config(void) {
 
     UCB1CTL1 = UCSSEL_2 + UCSWRST; // UCSSEL_2 Clock source 2 (SMCLK)
 
-    UCB1BR0 = 24; // fSCL = SMCLK/12 = ~100kHz (Need to verify [SMCLK = 13.56MHz])
+    UCB1BR0 = 32; // fSCL = SMCLK/12 = ~100kHz (Need to verify [SMCLK = 13.56MHz])
     UCB1BR1 = 0;
     UCB1CTL1 &= ~UCSWRST;   // Clear SW reset, resume operation
 
@@ -69,9 +69,9 @@ __interrupt void USCI_B1_ISR(void) {
       case  8: break;                           // Vector  8: STPIFG
       case 10:                                  // Vector 10: RXIFG
 		RXByteCtr--;                            // Decrement RX byte counter
-		if (RXByteCtr) {
+		if (RXByteCtr >1) {
 		*PRxData++ = UCB1RXBUF;               // Move RX data to address PRxData
-		} else if (RXByteCtr == 1) {                 // Only one byte left?
+		} else if (RXByteCtr == 0) {                 // Only one byte left?
 		  UCB1CTL1 |= UCTXSTP;                // Generate I2C stop condition
 		} else {
 		*PRxData = UCB1RXBUF;                 // Move final RX data to PRxData
@@ -110,7 +110,7 @@ void I2C_Tx(unsigned char tx_addr, unsigned char tx_data) {
 }
 
 void I2C_Rx(unsigned char rx_addr) {
-	RXByteCtr = 0x04;
+	RXByteCtr = 0x03;
 	MODE = 0x01;
 	TXData = rx_addr;
 	TXByteCtr = 0x01;
@@ -126,6 +126,7 @@ void I2C_Rx(unsigned char rx_addr) {
 
 	__bis_SR_register(LPM0_bits + GIE);     // Enter LPM0, enable interrupts
 	__no_operation();
+	__delay_cycles(1000);
 }
 
 void main(void) {
@@ -135,10 +136,11 @@ void main(void) {
     I2C_Tx_config(0x57);
 
     I2C_Tx(0x06, 0x03);
-    I2C_Tx(0x07, 0x43);
+    I2C_Tx(0x07, 0x47);
     I2C_Tx(0x09, 0x33);
 
 	while(1) {
 		I2C_Rx(0x05);
+
 	}
 }
