@@ -3,10 +3,6 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/personal_profile"
-            android:icon="@drawable/ic_menu_profile"
-            android:title="@string/profile" />
-        <item
             android:id="@+id/measurement_history"
             android:icon="@drawable/ic_menu_history"
             android:title="@string/measure_hist" />
@@ -26,18 +22,4 @@
             android:title="Tools" />
         -->
     </group>
-
-    <item android:title="Account">
-        <menu>
-            <item
-                android:id="@+id/user_login"
-                android:icon="@drawable/ic_menu_switch_user"
-                android:title="@string/action_switch_user" />
-            <item
-                android:id="@+id/user_sign_up"
-                android:icon="@drawable/ic_menu_sign_up"
-                android:title="@string/action_sign_up_item" />
-        </menu>
-    </item>
-
 </menu>

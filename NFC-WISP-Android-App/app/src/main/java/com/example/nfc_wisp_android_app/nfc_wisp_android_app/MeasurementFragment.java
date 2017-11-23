@@ -27,7 +27,6 @@ import java.util.ArrayList;
 public class MeasurementFragment extends ListFragment implements OnItemClickListener {
 
     private DBManager dbManager;
-    private MainActivity.Profile user;
 
     public MeasurementFragment() {
         // Required empty public constructor
@@ -39,7 +38,6 @@ public class MeasurementFragment extends ListFragment implements OnItemClickList
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_measurement, container, false);
         dbManager = ((MainActivity) getActivity()).dbManager;
-        user = ((MainActivity) getActivity()).user;
 
         // Inflate the layout for this fragment
         return view;
@@ -47,7 +45,7 @@ public class MeasurementFragment extends ListFragment implements OnItemClickList
 
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
-        Cursor history = dbManager.getUserMeasurementHistory(user.uid);
+        Cursor history = dbManager.getMeasurementHistory();
         if(history.getCount() != 0) {
             view.findViewById(R.id.empty_list_text).setVisibility(View.INVISIBLE);
             MeasurementHistoryAdapter adapter = new MeasurementHistoryAdapter(getActivity(), history);

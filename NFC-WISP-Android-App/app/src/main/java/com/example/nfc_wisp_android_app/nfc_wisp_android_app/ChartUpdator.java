@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class ChartUpdator extends AsyncTask<Float, float[], Float> {
+    private static final String TAG = "CHART_UPDATOR";
+
     private MainActivity mMain;
     private DoMeasurementFragment fragment;
     private byte[] out;
@@ -48,19 +50,24 @@ public class ChartUpdator extends AsyncTask<Float, float[], Float> {
         float[] red = new float[INPUT_SIZE / 4];
         float[] ir  = new float[INPUT_SIZE / 4];
 
+        Log.d(TAG, "Starting do in background...");
+
         IsoDep isoDep = IsoDep.get(tag);
         try {
+            Log.d(TAG, "Starting try block...");
             isoDep.connect();
             byte[] payload, rawPayload;
             ArrayList<Byte> ir_array = new ArrayList<>();
             ArrayList<Byte> red_array = new ArrayList<>();
             int count = 0;
             while(isoDep.isConnected() && count < MAX_WIDTH) {
+                Log.d(TAG, "While connected...");
                 isoDep.setTimeout(Integer.MAX_VALUE);
                 rawPayload = isoDep.transceive(out);
                 payload = decodePayload(rawPayload);
                 //float[] buf = new float[payload.length];
                 for(int j = 0; j < INPUT_SIZE; j += 4) {
+                    Log.d(TAG, "Going through j " + j);
                     /*for(int k = 0; k < 4; k++) {
                         r_array.add(payload[j + k]);
                     }*/
@@ -92,16 +99,18 @@ public class ChartUpdator extends AsyncTask<Float, float[], Float> {
             byte[] result_ir = new byte[ir_array.size()];
             byte[] result_red = new byte[red_array.size()];
             for(int i = 0; i < ir_array.size(); i++) {
+                Log.d(TAG, "Going through i " + i);
                 result_ir[i] = ir_array.get(i);
                 result_red[i] = red_array.get(i);
             }
-            mMain.dbManager.onInsertMeasurement(mMain.user.uid, result_ir, result_red, curTime);
+            Log.d(TAG, "Trying to insert measurement");
+            mMain.dbManager.onInsertMeasurement(result_ir, result_red, curTime);
             isoDep.close();
             return time;
         } catch (Exception e) {
             Snackbar.make(mMain.findViewById(android.R.id.content), "Tag is lost, please attach the tag to the cellphone.", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-            Log.e("Debug", "Fail to send new data", e);
+            Log.e(TAG, "Fail to send new data", e);
         }
         return null;
     }

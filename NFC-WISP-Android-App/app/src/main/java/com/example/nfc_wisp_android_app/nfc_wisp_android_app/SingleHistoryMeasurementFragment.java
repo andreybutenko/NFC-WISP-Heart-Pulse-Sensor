@@ -74,7 +74,7 @@ public class SingleHistoryMeasurementFragment extends Fragment implements OnClic
         String time = args.getString(TIME);
 
         MainActivity mMain = (MainActivity) getActivity();
-        Cursor cursor = mMain.dbManager.getSingleMeasurementHistory(mMain.user.uid, time);
+        Cursor cursor = mMain.dbManager.getSingleMeasurementHistory(time);
 
         cursor.moveToFirst();
         byte[] m_ir = cursor.getBlob(0);

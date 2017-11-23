@@ -28,7 +28,7 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LoginFragment.LoginFragmentListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
     private String CURRENT_TIME = DateFormat.getDateTimeInstance().format(new Date());
     public static final String FIRST_NAME = "FIRST_NAME";
     public static final String LAST_NAME = "LAST_NAME";
@@ -41,33 +41,6 @@ public class MainActivity extends AppCompatActivity
 
     private float fakeTimeStamp;
     public ChartUpdator chartUpdator;
-
-    public class Profile {
-        String uid;
-        String password;
-        String firstName;
-        String lastName;
-        String gender;
-        int age;
-        int weight;
-        public Profile (String uid,
-                        String password,
-                        String firstName,
-                        String lastName,
-                        String gender,
-                        int age,
-                        int weight) {
-            this.uid = uid;
-            this.password = password;
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.gender = gender;
-            this.age = age;
-            this.weight = weight;
-        }
-    }
-
-    Profile user;
 
     private IntentFilter[] intentFiltersArray;
     private String[][] techListsArray;
@@ -92,10 +65,6 @@ public class MainActivity extends AppCompatActivity
 
         // Initialize database helper
         dbManager = new DBManager(this);
-
-        if(user == null) {
-            toLoginFragment();
-        }
 
 
         // Initialization configuration currently not in use
@@ -139,6 +108,8 @@ public class MainActivity extends AppCompatActivity
 
         //mNfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
         fakeTimeStamp = 0f;
+
+        toDoMeasurementFragment();
     }
 
 
@@ -222,55 +193,17 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.personal_profile) {
-            toProfileFragment();
-        } else if (id == R.id.measurement_history) {
+        if (id == R.id.measurement_history) {
             toMeasurementHistory();
-        } else if(id == R.id.user_login) {
-            toLoginFragment();
         } else if(id == R.id.do_measurement) {
             toDoMeasurementFragment();
-        } else if(id == R.id.user_sign_up) {
-            toSignUpFragment();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void toProfileFragment() {
-        if(user == null) {
-            Snackbar.make(findViewById(android.R.id.content), "You must login first", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            return ;
-        }
-        UserProfileFragment fragment = new UserProfileFragment(); // create new fragment
-
-        // set-up arguments
-        Bundle args = new Bundle();
-        args.putString(FIRST_NAME, user.firstName);
-        args.putString(LAST_NAME, user.lastName);
-        args.putString(GENDER, user.gender);
-        args.putString(AGE, Integer.toString(user.age));
-        args.putString(WEIGHT, Integer.toString(user.weight) + " lb");
-        fragment.setArguments(args);
-
-        // begin fragment trasaction
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        transaction.replace(R.id.fragment_container, fragment); // replace the transaction with current transaction
-        transaction.addToBackStack(null); // add the transaction to the back stack so the user can navigate back
-
-        transaction.commit();
-    }
-
-
     private void toMeasurementHistory() {
-        if(user == null) {
-            Snackbar.make(findViewById(android.R.id.content), "You must login first", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            return ;
-        }
         MeasurementFragment fragment = new MeasurementFragment(); // create new fragment
 
         // set-up arguments
@@ -286,28 +219,7 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    private void toLoginFragment() {
-        LoginFragment fragment = new LoginFragment(); // create new fragment
-
-        // set-up arguments
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-
-        // begin fragment trasaction
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        transaction.replace(R.id.fragment_container, fragment); // replace the transaction with current transaction
-        transaction.addToBackStack(null); // add the transaction to the back stack so the user can navigate back
-
-        transaction.commit();
-    }
-
     private void toDoMeasurementFragment() {
-        if(user == null) {
-            Snackbar.make(findViewById(android.R.id.content), "You must login first", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            return ;
-        }
         DoMeasurementFragment fragment = new DoMeasurementFragment(); // create new fragment
 
         // set-up arguments
@@ -323,38 +235,6 @@ public class MainActivity extends AppCompatActivity
 
         transaction.commit();
     }
-
-
-    private void toSignUpFragment() {
-        SignUpFragment fragment = new SignUpFragment(); // create new fragment
-
-        // set-up arguments
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-
-        // begin fragment trasaction
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        transaction.replace(R.id.fragment_container, fragment); // replace the transaction with current transaction
-        transaction.addToBackStack(null); // add the transaction to the back stack so the user can navigate back
-
-        transaction.commit();
-    }
-
-    public void getProfileFromDB(String uid,
-                                 String password,
-                                 String firstName,
-                                 String lastName,
-                                 String gender,
-                                 int age,
-                                 int weight) {
-        TextView navHeaderName = (TextView) findViewById(R.id.header_user_name);
-        navHeaderName.setText(firstName + " " + lastName);
-        TextView navuid = (TextView) findViewById(R.id.header_user_id);
-        navuid.setText(uid);
-        this.user = new Profile(uid, password, firstName, lastName, gender, age, weight);
-    }
-
 }
 
 
