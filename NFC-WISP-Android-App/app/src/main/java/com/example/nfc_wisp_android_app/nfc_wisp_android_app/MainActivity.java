@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -140,6 +141,8 @@ public class MainActivity extends AppCompatActivity
     public void onNewIntent(Intent intent) {
         //Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG); // for write to NFC
         setIntent(intent);
+
+        Log.d("MAIN", "Got intent " + intent);
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if((fragment instanceof DoMeasurementFragment)

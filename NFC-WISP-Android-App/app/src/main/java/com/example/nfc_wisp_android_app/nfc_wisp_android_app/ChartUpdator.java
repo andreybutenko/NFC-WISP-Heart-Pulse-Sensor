@@ -50,52 +50,49 @@ public class ChartUpdator extends AsyncTask<Float, float[], Float> {
         float[] red = new float[INPUT_SIZE / 4];
         float[] ir  = new float[INPUT_SIZE / 4];
 
-        Log.d(TAG, "Starting do in background...");
-
         IsoDep isoDep = IsoDep.get(tag);
         try {
-            Log.d(TAG, "Starting try block...");
             isoDep.connect();
             byte[] payload, rawPayload;
             ArrayList<Byte> ir_array = new ArrayList<>();
             ArrayList<Byte> red_array = new ArrayList<>();
             int count = 0;
+
             while(isoDep.isConnected() && count < MAX_WIDTH) {
-                Log.d(TAG, "While connected...");
                 isoDep.setTimeout(Integer.MAX_VALUE);
                 rawPayload = isoDep.transceive(out);
                 payload = decodePayload(rawPayload);
-                //float[] buf = new float[payload.length];
+
+                // The device sends 16 bytes at a time in 4 groups of 4 bytes each
+                // This loop performs some bitwise operations to get two values from this packet
+                // One is the reflection of red light, the other is the reflection of infrared light
+
                 for(int j = 0; j < INPUT_SIZE; j += 4) {
-                    Log.d(TAG, "Going through j " + j);
-                    /*for(int k = 0; k < 4; k++) {
-                        r_array.add(payload[j + k]);
-                    }*/
                     ir_array.add(payload[j]);
                     ir_array.add(payload[j + 1]);
+
                     red_array.add(payload[j + 2]);
                     red_array.add(payload[j + 3]);
-                    int ir_s = 0, rd_s = 0;
 
-
+                    int ir_s = 0;
                     ir_s = (payload[j + 1] & 0x0F);
                     ir_s = (ir_s << 8) | (payload[j] & 0xFF);
+
+                    int rd_s = 0;
                     rd_s = (payload[j + 3] & 0x0F);
                     rd_s = (rd_s << 8) | (payload[j + 2] & 0xFF);
 
                     ir[j / 4] = (float) ir_s;
                     red[j / 4] = (float) rd_s;
-                    //buf[j] = (float) rd;
+
                     time += 4;
                 }
+
                 float[] times = new float[]{time};
                 publishProgress(ir, red, times);
                 count++;
             }
-            /*byte[] result = new byte[r_array.size()];
-            for(int i = 0; i < result.length; i++) {
-                result[i] = r_array.get(i);
-            }*/
+
             byte[] result_ir = new byte[ir_array.size()];
             byte[] result_red = new byte[red_array.size()];
             for(int i = 0; i < ir_array.size(); i++) {
@@ -103,6 +100,7 @@ public class ChartUpdator extends AsyncTask<Float, float[], Float> {
                 result_ir[i] = ir_array.get(i);
                 result_red[i] = red_array.get(i);
             }
+
             Log.d(TAG, "Trying to insert measurement");
             mMain.dbManager.onInsertMeasurement(result_ir, result_red, curTime);
             isoDep.close();
@@ -110,6 +108,7 @@ public class ChartUpdator extends AsyncTask<Float, float[], Float> {
         } catch (Exception e) {
             Snackbar.make(mMain.findViewById(android.R.id.content), "Tag is lost, please attach the tag to the cellphone.", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
+            fragment.OnTagDetected("Tag lost");
             Log.e(TAG, "Fail to send new data", e);
         }
         return null;
